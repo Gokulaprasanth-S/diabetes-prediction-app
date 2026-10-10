@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f8fb">
+    <title>Diabetes Early Prediction System — Prediction Result</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --navy: #15334b;
+            --muted: #678092;
+            --teal: #087f83;
+            --teal-dark: #06656e;
+            --blue: #367fbd;
+            --line: #e1ebf0;
+            --surface: #fff;
+            --canvas: #f3f8fb;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 50% -14%, #dceff2 0, transparent 39rem),
+                linear-gradient(180deg, #f5f9fb 0%, #f7fafc 100%);
+            color: var(--navy);
+        }
+
+        .page-shell {
+            width: min(100% - 40px, 1040px);
+            margin: 0 auto;
+            padding: 30px 0 42px;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 34px;
+        }
+
+        .brand-mark {
+            display: grid;
+            flex: 0 0 auto;
+            width: 47px;
+            height: 47px;
+            place-items: center;
+            border: 1px solid #d6e9eb;
+            border-radius: 15px;
+            background: linear-gradient(145deg, #e8f7f5, #e8f2fa);
+            color: var(--teal);
+        }
+
+        .brand-mark svg {
+            width: 25px;
+            height: 25px;
+        }
+
+        .header-copy h1 {
+            margin: 0;
+            font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+            font-weight: 750;
+            letter-spacing: -0.025em;
+        }
+
+        .header-copy p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 0.86rem;
+            letter-spacing: 0.015em;
+        }
+
+        .main-content {
+            width: min(100%, 760px);
+            margin: 0 auto;
+        }
+
+        .result-card {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            background: var(--surface);
+            box-shadow: 0 22px 65px #244d6512, 0 3px 12px #244d6508;
+        }
+
+        .card-top {
+            padding: 31px 32px 0;
+            text-align: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 10px;
+            color: var(--teal-dark);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #29a5a0;
+            content: "";
+        }
+
+        .card-top h2 {
+            margin: 0;
+            font-size: clamp(1.65rem, 4vw, 2.1rem);
+            letter-spacing: -0.04em;
+        }
+
+        .intro-copy {
+            max-width: 500px;
+            margin: 9px auto 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .probability-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 20px 24px;
+        }
+
+        .probability-ring {
+            display: grid;
+            width: 198px;
+            height: 198px;
+            place-items: center;
+            border: 1px solid #d9eceb;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, #fff 62%, transparent 63%),
+                conic-gradient(from 220deg, #87d1ca, #3c9fac, #94d6d0, #d7efeb);
+            box-shadow: 0 12px 30px #188d8c16;
+        }
+
+        .probability-inner {
+            display: flex;
+            width: 168px;
+            height: 168px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .probability-value {
+            color: var(--teal-dark);
+            font-size: clamp(2.5rem, 8vw, 3.15rem);
+            font-weight: 780;
+            letter-spacing: -0.07em;
+            line-height: 1;
+        }
+
+        .probability-caption {
+            max-width: 120px;
+            margin: 9px 0 0;
+            color: var(--muted);
+            font-size: 0.69rem;
+            font-weight: 700;
+            letter-spacing: 0.055em;
+            line-height: 1.4;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .gauge-wrap {
+            width: min(100%, 500px);
+            margin-top: 25px;
+        }
+
+        .gauge-track {
+            position: relative;
+            height: 13px;
+            overflow: hidden;
+            border: 1px solid #e1e9eb;
+            border-radius: 999px;
+            background: linear-gradient(
+                to right,
+                #cdebd9 0%,
+                #cdebd9 30%,
+                #f5e2bb 30%,
+                #f5e2bb 60%,
+                #f0ceca 60%,
+                #f0ceca 100%
+            );
+            box-shadow: inset 0 1px 2px #17334b10;
+        }
+
+        .gauge-track::after {
+            position: absolute;
+            z-index: 1;
+            inset: 0;
+            background: linear-gradient(
+                to right,
+                transparent 29.7%,
+                #fff 29.7%,
+                #fff 30.3%,
+                transparent 30.3%,
+                transparent 59.7%,
+                #fff 59.7%,
+                #fff 60.3%,
+                transparent 60.3%
+            );
+            content: "";
+            pointer-events: none;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            z-index: 0;
+            inset: 0 auto 0 0;
+            max-width: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #5caeb0, #287f9e);
+            color: #5caeb0;
+            box-shadow: 0 0 10px currentColor;
+            transition: width 500ms ease;
+        }
+
+        .gauge-fill.low {
+            background: linear-gradient(90deg, #48a96e, #2b8a61);
+            color: #48a96e;
+        }
+
+        .gauge-fill.moderate {
+            background: linear-gradient(90deg, #e8ad43, #d78b24);
+            color: #e8ad43;
+        }
+
+        .gauge-fill.higher {
+            background: linear-gradient(90deg, #dc796d, #c65049);
+            color: #dc796d;
+        }
+
+        .gauge-scale {
+            position: relative;
+            height: 47px;
+            margin-top: 9px;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .scale-tick {
+            position: absolute;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        .scale-tick::before {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            width: 1px;
+            height: 5px;
+            background: #78929c;
+            content: "";
+        }
+
+        .tick-zero {
+            left: 0;
+        }
+
+        .tick-thirty {
+            left: 30%;
+            transform: translateX(-50%);
+        }
+
+        .tick-sixty {
+            left: 60%;
+            transform: translateX(-50%);
+        }
+
+        .tick-hundred {
+            right: 0;
+        }
+
+        .tick-zero::before {
+            left: 0;
+        }
+
+        .tick-hundred::before {
+            right: 0;
+            left: auto;
+        }
+
+        .scale-risk {
+            position: absolute;
+            top: 22px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .scale-low {
+            left: 0;
+            width: 30%;
+            color: #43845c;
+        }
+
+        .scale-moderate {
+            left: 30%;
+            width: 30%;
+            color: #9a6a20;
+        }
+
+        .scale-higher {
+            left: 60%;
+            width: 40%;
+            color: #a4524a;
+        }
+
+        .gauge-explanation {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 0.78rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            margin-top: 21px;
+            padding: 9px 18px;
+            border: 1px solid;
+            border-radius: 999px;
+            font-size: 0.94rem;
+            font-weight: 750;
+            line-height: 1.35;
+        }
+
+        .risk-badge::before {
+            width: 9px;
+            height: 9px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: currentColor;
+            content: "";
+        }
+
+        .risk-low {
+            border-color: #c6e8d6;
+            background: #eaf8f0;
+            color: #24734b;
+        }
+
+        .risk-moderate {
+            border-color: #f2dfb6;
+            background: #fff7e8;
+            color: #93600d;
+        }
+
+        .risk-higher {
+            border-color: #f0d0cb;
+            background: #fff0ee;
+            color: #a23f36;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            padding: 0 32px 27px;
+        }
+
+        .detail-tile {
+            min-width: 0;
+            padding: 17px 18px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fbfdfe;
+        }
+
+        .detail-label {
+            margin: 0 0 8px;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.085em;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            margin: 0;
+            color: var(--navy);
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .model-output {
+            color: var(--teal-dark);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .explanation {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            margin: 0 32px 27px;
+            padding: 17px 18px;
+            border: 1px solid #dce9f1;
+            border-radius: 14px;
+            background: linear-gradient(120deg, #f3f9fc, #f1f8f8);
+        }
+
+        .explanation-icon {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 11px;
+            background: #e1f0f4;
+            color: #287798;
+        }
+
+        .explanation-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .explanation h3 {
+            margin: 1px 0 5px;
+            font-size: 0.91rem;
+        }
+
+        .explanation p {
+            margin: 0;
+            color: #5f7887;
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: center;
+            padding: 0 32px 31px;
+        }
+
+        .again-button {
+            display: inline-flex;
+            min-height: 51px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 25px;
+            border: 1px solid var(--teal);
+            border-radius: 12px;
+            background: linear-gradient(105deg, #087f83, #167fa5);
+            color: #fff;
+            box-shadow: 0 9px 20px #087f832b;
+            font-size: 0.94rem;
+            font-weight: 750;
+            text-decoration: none;
+            transition: transform 150ms ease, box-shadow 150ms ease;
+        }
+
+        .again-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px #087f8338;
+        }
+
+        .again-button:focus-visible {
+            outline: 3px solid #148e9a55;
+            outline-offset: 3px;
+        }
+
+        .again-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .disclaimer {
+            max-width: 660px;
+            margin: 19px auto 0;
+            color: #758a97;
+            font-size: 0.79rem;
+            line-height: 1.65;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .page-shell {
+                width: min(100% - 24px, 480px);
+                padding-top: 21px;
+            }
+
+            .site-header {
+                margin-bottom: 24px;
+            }
+
+            .brand-mark {
+                width: 42px;
+                height: 42px;
+                border-radius: 13px;
+            }
+
+            .card-top {
+                padding: 25px 18px 0;
+            }
+
+            .probability-section {
+                padding: 22px 15px;
+            }
+
+            .probability-ring {
+                width: 176px;
+                height: 176px;
+            }
+
+            .probability-inner {
+                width: 148px;
+                height: 148px;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 0 18px 20px;
+            }
+
+            .detail-tile {
+                padding: 15px 16px;
+            }
+
+            .explanation {
+                margin: 0 18px 22px;
+                padding: 15px;
+            }
+
+            .card-footer {
+                padding: 0 18px 24px;
+            }
+
+            .again-button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .header-copy h1 {
+                font-size: 1rem;
+            }
+
+            .header-copy p {
+                font-size: 0.77rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+                </svg>
+            </span>
+            <div class="header-copy">
+                <h1>Diabetes Early Prediction System</h1>
+                <p>Machine Learning Based Risk Assessment</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="result-card" aria-labelledby="result-title">
+                <div class="card-top">
+                    <p class="eyebrow">Analysis complete</p>
+                    <h2 id="result-title">Prediction Result</h2>
+                    <p class="intro-copy">Review the estimated risk and model prediction generated from the information provided.</p>
+                </div>
+
+                <div class="probability-section">
+                    <div class="probability-ring" role="img" aria-label="Estimated diabetes probability: {{ probability }} percent">
+                        <div class="probability-inner">
+                            <span class="probability-value">{{ probability }}%</span>
+                            <span class="probability-caption">Estimated Diabetes Probability</span>
+                        </div>
+                    </div>
+                    <div class="gauge-wrap" role="img" aria-label="Probability scale: low from 0 to 29 percent, moderate from 30 to 59 percent, higher from 60 to 100 percent. Current probability: {{ probability }} percent.">
+                        <div class="gauge-track">
+                            {% if risk_interpretation == "Low estimated risk" %}
+                                <div class="gauge-fill low" style="width: {{ probability }}%; max-width: 100%;"></div>
+                            {% elif risk_interpretation == "Moderate estimated risk" %}
+                                <div class="gauge-fill moderate" style="width: {{ probability }}%; max-width: 100%;"></div>
+                            {% elif risk_interpretation == "Higher estimated risk" %}
+                                <div class="gauge-fill higher" style="width: {{ probability }}%; max-width: 100%;"></div>
+                            {% else %}
+                                <div class="gauge-fill" style="width: {{ probability }}%; max-width: 100%;"></div>
+                            {% endif %}
+                        </div>
+                        <div class="gauge-scale" aria-hidden="true">
+                            <span class="scale-tick tick-zero">0%</span>
+                            <span class="scale-tick tick-thirty">30%</span>
+                            <span class="scale-tick tick-sixty">60%</span>
+                            <span class="scale-tick tick-hundred">100%</span>
+                            <span class="scale-risk scale-low">Low</span>
+                            <span class="scale-risk scale-moderate">Moderate</span>
+                            <span class="scale-risk scale-higher">Higher</span>
+                        </div>
+                        <p class="gauge-explanation">The probability shown is generated by the trained machine-learning model.</p>
+                    </div>
+                    {% if risk_interpretation == "Low estimated risk" %}
+                        <div class="risk-badge risk-low">{{ risk_interpretation }}</div>
+                    {% elif risk_interpretation == "Moderate estimated risk" %}
+                        <div class="risk-badge risk-moderate">{{ risk_interpretation }}</div>
+                    {% elif risk_interpretation == "Higher estimated risk" %}
+                        <div class="risk-badge risk-higher">{{ risk_interpretation }}</div>
+                    {% else %}
+                        <div class="risk-badge">{{ risk_interpretation }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="details">
+                    <article class="detail-tile">
+                        <p class="detail-label">Prediction status</p>
+                        <p class="detail-value">
+                            {% if prediction == 0 %}
+                                Lower likelihood predicted by the model
+                            {% elif prediction == 1 %}
+                                Higher likelihood predicted by the model
+                            {% else %}
+                                Model prediction: {{ prediction }}
+                            {% endif %}
+                        </p>
+                    </article>
+                    <article class="detail-tile">
+                        <p class="detail-label">Model output</p>
+                        <p class="detail-value model-output">Model Output: {{ prediction }}</p>
+                    </article>
+                </div>
+
+                <aside class="explanation">
+                    <span class="explanation-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3.5 20 7v5.2c0 4.1-2.8 7.1-8 8.8-5.2-1.7-8-4.7-8-8.8V7l8-3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                            <path d="M12 8v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>About this estimated risk</h3>
+                        <p>The percentage is generated by the trained machine-learning model using the information submitted. This academic prototype provides an estimated risk and model prediction only; it is not a medical diagnosis or a substitute for professional healthcare advice.</p>
+                    </div>
+                </aside>
+
+                <div class="card-footer">
+                    <a class="again-button" href="/">
+                        Predict Again
+                        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            </section>
+
+            <p class="disclaimer">{{ disclaimer }}</p>
+        </main>
+    </div>
+</body>
+</html>
